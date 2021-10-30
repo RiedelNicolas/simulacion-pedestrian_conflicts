@@ -1,3 +1,8 @@
+import copy
+import random
+
+import numpy as np
+
 import coordenada as c
 import peaton as p
 
@@ -6,25 +11,62 @@ class Modelo :
         self.alto = _alto*2 #Paso de metros a celdas.
         self.ancho = _ancho*2 #Paseo de metros a celdas.
         self.peatones = {}
-        self.espera_peatones = 3
-
+        self.peatones_siguiente_turno = {} #estructura auxiliar.
+        self.peatones_en_espera = 0
+        self.cantidad_cruces = 0
+        self.turno_actual = 0
+        self.arribos_peatones = arribos = np.random.poisson(0.5, 60*60)
 
     def imprimir(self) :
         print()
-        print(self.peatones)
         for y in range(0, self.alto):
             print()
             for x in range(0, self.ancho) :
                 aux = c.Coordenada(x, y)
-                if (aux in self.peatones) :
-                    print("p",end="")
+                if aux in self.peatones :
+                    print("\U0001F468",end="")
                 else :
-                    print("-",end="")
+                    print("\U0001F332",end="")
         print()
 
     #En un principio vamos a meter solo peatones por la derecha.
-    def ingresar_en_espera(self) :
+    def ingresar_peaton(self, posicion) :
+        if ( posicion in self.peatones) :
+            raise ValueError("intentaste ingresar un peaton en una posicion ocupada")
+        if not ( posicion.x == 0 or posicion == (self.ancho-1) ) :
+            raise ValueError("los peatones solo pueden ser ingresados en los bordes")
+        if (posicion.x == 0):
+            self.peatones[posicion] = p.Peaton(posicion, "d")
+        elif (posicion.x == (self.ancho-1) ):
+            self.peatones[posicion] = p.Peaton(posicion, "i")
+        else :
+            raise ValueError("Error desconocido ingresando peaton")
 
-        self.peatones[c.Coordenada(0,0)] = p.Peaton(c.Coordenada(0,0),"d")
-        self.peatones[c.Coordenada(0,1)] = p.Peaton(c.Coordenada(0,1),"d")
-        self.peatones[c.Coordenada(0,3)] = p.Peaton(c.Coordenada(0,3),"d")
+
+    def ingresar_en_espera (self) :
+        if (self.peatones_en_espera == 0 ) : return
+
+        lugares_disponibles = []
+
+        #luego agregar posiciones de la izquierda.
+        for i in range (0, self.alto) :
+            aux = c.Coordenada(0,i)
+            if (aux not in self.peatones) : #si el lugar esta disponible
+                lugares_disponibles.append(aux)
+
+        random.shuffle(lugares_disponibles)
+        i = 0
+        while (i < self.peatones_en_espera and i < len(lugares_disponibles) ) :
+             self.ingresar_peaton(lugares_disponibles[i]);
+             i+=1
+
+        self.peatones_en_espera -= i
+
+    def avanzar_turno (self) :
+        self.peatones_en_espera += self.arribos_peatones [self.turno_actual]
+        self.peatones = copy.deepcopy(self.peatones_siguiente_turno)
+        self.peatones_siguiente_turno = {}
+        self.ingresar_en_espera()
+        for key, value in self.peatones.items():
+            value.avanzar(self)
+        self.turno_actual +=1
