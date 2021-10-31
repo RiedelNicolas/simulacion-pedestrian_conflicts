@@ -14,26 +14,33 @@ class Modelo :
         self.peatones_siguiente_turno = {} #estructura auxiliar.
         self.peatones_en_espera = 0
         self.cantidad_cruces = 0
+        self.peatones_generados = 0
         self.turno_actual = 0
         self.arribos_peatones = arribos = np.random.poisson(0.5, 60*60)
 
     def imprimir(self) :
-        print()
+        print("Cantidad generados",self.peatones_generados)
+        print("Cantidad de cruces",self.cantidad_cruces)
+        print("En pantalla deberia haber",self.peatones_generados - self.cantidad_cruces)
         for y in range(0, self.alto):
             print()
             for x in range(0, self.ancho) :
                 aux = c.Coordenada(x, y)
                 if aux in self.peatones :
-                    print("\U0001F468",end="")
+                    if self.peatones[aux].direccion == "d" :
+                        print("\U0001F468",end="")
+                    else:
+                        print("\U0001F467",end="")
                 else :
                     print("\U0001F332",end="")
         print()
 
     #En un principio vamos a meter solo peatones por la derecha.
     def ingresar_peaton(self, posicion) :
+        self.peatones_generados +=1;
         if ( posicion in self.peatones) :
             raise ValueError("intentaste ingresar un peaton en una posicion ocupada")
-        if not ( posicion.x == 0 or posicion == (self.ancho-1) ) :
+        if not ( posicion.x == 0 or posicion.x == (self.ancho-1) ) :
             raise ValueError("los peatones solo pueden ser ingresados en los bordes")
         if (posicion.x == 0):
             self.peatones[posicion] = p.Peaton(posicion, "d")
@@ -48,9 +55,13 @@ class Modelo :
 
         lugares_disponibles = []
 
-        #luego agregar posiciones de la izquierda.
         for i in range (0, self.alto) :
             aux = c.Coordenada(0,i)
+            if (aux not in self.peatones) : #si el lugar esta disponible
+                lugares_disponibles.append(aux)
+
+        for i in range (0, self.alto) :
+            aux = c.Coordenada(self.ancho-1,i)
             if (aux not in self.peatones) : #si el lugar esta disponible
                 lugares_disponibles.append(aux)
 
