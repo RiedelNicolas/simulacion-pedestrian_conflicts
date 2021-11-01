@@ -8,8 +8,8 @@ pygame.init()
 
 height = 6
 width = 42
-window = pygame.display.set_mode((1540 ,180))
-block_size = 30
+window = pygame.display.set_mode((1000 ,180)) #Mi monitor es chico, cambio un pco la reso
+block_size = 20
 
 
 

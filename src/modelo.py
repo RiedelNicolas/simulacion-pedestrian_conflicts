@@ -5,23 +5,32 @@ import numpy as np
 
 import coordenada as c
 import peaton as p
-
+import semaforo as s
 class Modelo :
-    def __init__(self, _alto=5,_ancho=21):
+    def __init__(self, _alto=5,_ancho=21, _tiempo_verde = 50):
         self.alto = _alto*2 #Paso de metros a celdas.
         self.ancho = _ancho*2 #Paseo de metros a celdas.
         self.peatones = {}
         self.peatones_siguiente_turno = {} #estructura auxiliar.
         self.peatones_en_espera = 0
+        self.autos_en_espera = 0
         self.cantidad_cruces = 0
         self.peatones_generados = 0
         self.turno_actual = 0
-        self.arribos_peatones = arribos = np.random.poisson(0.5, 60*60)
+        self.arribos_peatones = np.random.poisson(0.3, 60*60)
+        self.arribos_autos = np.random.poisson(0.1, 60 * 60)
+        self.semaforo = s.Semaforo(_tiempo_verde) #el tiempo de un ciclo debe ser 90
 
     def imprimir(self) :
         print("Cantidad generados",self.peatones_generados)
         print("Cantidad de cruces",self.cantidad_cruces)
         print("En pantalla deberia haber",self.peatones_generados - self.cantidad_cruces)
+
+        print("Estamos en el turno ", self.turno_actual)
+        if self.semaforo.esta_verde() :
+            print("El semaforo esta verde")
+        else :
+            print("El semaforo esta rojo")
         for y in range(0, self.alto):
             print()
             for x in range(0, self.ancho) :
@@ -51,8 +60,9 @@ class Modelo :
 
 
     def ingresar_en_espera (self) :
-        if (self.peatones_en_espera == 0 ) : return
 
+        if ( self.peatones_en_espera == 0 ) : return
+        if( self.semaforo.esta_rojo() ) : return #No tiene que entrar nadie.
         lugares_disponibles = []
 
         for i in range (0, self.alto) :
@@ -81,3 +91,4 @@ class Modelo :
         for key, value in self.peatones.items():
             value.avanzar(self)
         self.turno_actual +=1
+        self.semaforo.avanzar();
