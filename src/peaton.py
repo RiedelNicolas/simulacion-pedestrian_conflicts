@@ -100,55 +100,65 @@ class Peaton :
         if (abajo in modelo.peatones): return False
         return True
 
+    def puede_cambiar_arriba(self, modelo): #devuelve true si se puede cambiar de carril arriba
+        if not self.arriba_disponible(modelo) : return False
+        fila = []  # Buscamos toda la fila superior
+        for i in range(0, modelo.ancho):
+            aux = cor.Coordenada(i, self.posicion.y - 1)
+            if aux in modelo.peatones :  fila.append(aux)
+
+        if( len (fila) == 0 ) : return True # La fila de arriba esta vacia, puedo cambiar.
+
+        min_distancia = 100  # un maximo absurdo, mi idea es buscar con el que tengo minima distancia.
+        min_coor = fila[0]  # cargo una cualquiera, se va a sobrescribir.
+        for i in fila:
+            if i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y - 1)) < min_distancia :
+                min_distancia = i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y - 1))
+                min_coor = i
+        if (min_distancia - 1) > self.vel_base:
+            if (modelo.peatones[min_coor].vel_base < self.vel_base):
+                return True
+        return False #no puede cambiar...
+
+
+    def puede_cambiar_abajo(self, modelo): #devuelve true si se puede cambiar de carril arriba
+        #Evaluo si se le permite cambiar a abajo :
+        if not self.abajo_disponible(modelo): return False
+        fila = []# Buscamos toda la fila inferior
+        for i in range(0, modelo.ancho) :
+            aux = cor.Coordenada (i, self.posicion.y+1)
+            if (aux in modelo.peatones ) :  fila.append(aux)
+
+        if( len (fila) == 0 ) : return True # La fila de abajo esta vacia, puedo cambiar.
+
+        min_distancia = 100 # un maximo absurdo, mi idea es buscar con el que tengo minima distancia.
+        min_coor = cor.Coordenada(0,0) #cargo una cualquiera, se va a sobrescribir.
+        for i in fila :
+          if( i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y+1)) < min_distancia ):
+              min_distancia = i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y+1))
+              min_coor = i
+        if  (min_distancia-1) > self.vel_base :
+            if (modelo.peatones[min_coor].vel_base < self.vel_base) :
+                return True
+        return False #No se cumplio ninguna condicion
+
+
     def cambia_carril(self, modelo): # Devuelve true si efectivamente debe cabiar de carril. Efectua el cambio de carril.
 
         if self.vel_turno != 0 : return False #No esta bloquedo.
 
-        puede_arriba = False
-        puede_abajo = False
-        #Evaluo si se le permite cambiar arriba.
-        if self.arriba_disponible(modelo): #Si la posicion de arriba esta vacia o es valida.
-            fila = []# Buscamos toda la fila superior (Menos con el que recorremos)
-            for i in range(0, modelo.ancho) :
-                aux = cor.Coordenada (i, self.posicion.y-1)
-                if (aux in modelo.peatones and aux != self.posicion ) :  fila.append(aux)
-
-            min_distancia = 100 # un maximo absurdo, mi idea es buscar con el que tengo minima distancia.
-            min_coor = fila[0] #cargo una cualquiera, se va a sobrescribir.
-            for i in fila :
-              if( i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y-1)) < min_distancia ):
-                  min_distancia = i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y-1))
-                  min_coor = i
-            if  (min_distancia-1) > self.vel_base :
-                if (modelo.peatones[min_coor].vel_base < self.vel_base) :
-                    puede_arriba = True
-
-        #Evaluo si se le permite cambiar a abajo :
-        if self.abajo_disponible(modelo): #Si la posicion de abajo esta vacia o es valida.
-            fila = []# Buscamos toda la fila superior (Menos con el que recorremos)
-            for i in range(0, modelo.ancho) :
-                aux = cor.Coordenada (i, self.posicion.y+1)
-                if (aux in modelo.peatones and aux != self.posicion ) :  fila.append(aux)
-
-            min_distancia = 100 # un maximo absurdo, mi idea es buscar con el que tengo minima distancia.
-            min_coor = cor.Coordenada(0,0) #cargo una cualquiera, se va a sobrescribir.
-            for i in fila :
-              if( i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y+1)) < min_distancia ):
-                  min_distancia = i.distancia(cor.Coordenada(self.posicion.x, self.posicion.y+1))
-                  min_coor = i
-            if  (min_distancia-1) > self.vel_base :
-                if (modelo.peatones[min_coor].vel_base < self.vel_base) :
-                    puede_abajo = True
+        puede_arriba = self.puede_cambiar_arriba(modelo)
+        puede_abajo = self.puede_cambiar_abajo(modelo)
 
         if puede_arriba and puede_abajo :
-            if random.random() > 0.5 : #Mueve arriba
-                aux = cor.Coordenada(self.posicion.x, self.posicion.y -1)
+            if random.random() > 0.5 : #Tiro una moneda
+                aux = cor.Coordenada(self.posicion.x, self.posicion.y -1) #mueve arriba
                 self.mover_a(modelo, aux)
             else : #mueve abajo
                 aux = cor.Coordenada(self.posicion.x, self.posicion.y + 1)
                 self.mover_a(modelo, aux)
             return True
-        if puede_arriba :
+        if puede_arriba : # En este caso solo puede arriba
             aux = cor.Coordenada(self.posicion.x, self.posicion.y - 1)
             self.mover_a(modelo, aux)
             return True
