@@ -140,7 +140,8 @@ class Modelo :
         self.semaforo.avanzar();
 
     def generar_matriz(self) :
-        grid = [[], [], [], [], [], []]
+        rows, cols = 10, 42
+        grid = [([0] * cols) for i in range(rows)]
         for y in range(0, self.alto):
             for x in range(0, self.ancho) :
                 aux = c.Coordenada(x, y)
@@ -153,3 +154,4 @@ class Modelo :
                     grid[y][x] = 2
                 else :
                     grid[y][x] = 0
+        return grid
