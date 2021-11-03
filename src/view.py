@@ -6,10 +6,8 @@ pygame.init()
 
 height = 6
 width = 42
-window = pygame.display.set_mode((1360 ,180)) #Mi monitor es chico, cambio un pco la reso
+window = pygame.display.set_mode((1360 ,120)) #Mi monitor es chico, cambio un pco la reso
 block_size = 20
-
-
 
 grid = [[],[],[],[],[],[]]
 
@@ -23,11 +21,13 @@ pygame.draw.rect(window, (0,150,0), rect)
 rect = pygame.Rect(1420, 0, 120, 180)
 pygame.draw.rect(window, (0,150,0), rect)
 
-
+turno = 0
 myfont = pygame.font.SysFont("Comic Sans MS", 20)
+
 label = myfont.render("Waiting Area", 1, (0,0,0))
 window.blit(label, (1430, 10))
 window.blit(label, (10, 10))
+
 step = 0.5
 
 while True:
@@ -55,11 +55,23 @@ while True:
                     grid_copy[fila][columna + 1] = 1
     
     for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN and step > 0:
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
-                step += 0.05
-            if event.key == pygame.K_s:
-                step -= 0.05
+                step += 0.01
+            if event.key == pygame.K_s  and step > 0.01:
+                step -= 0.01
+
+
+    #borro actual
+    label_turno = myfont.render(str(turno), 1, (0,150,0))
+    window.blit(label_turno, (20, 30))
+    #actualizo turno
+    turno +=1
+    #dibujo nuevo turno
+    label_turno = myfont.render(str(turno), 1, (0,0,0))
+    window.blit(label_turno, (20, 30))
+
+
     grid = grid_copy
     pygame.display.update()
     time.sleep(step)
