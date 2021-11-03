@@ -6,7 +6,7 @@ pygame.init()
 
 height = 6
 width = 42
-window = pygame.display.set_mode((1000 ,180)) #Mi monitor es chico, cambio un pco la reso
+window = pygame.display.set_mode((1360 ,180)) #Mi monitor es chico, cambio un pco la reso
 block_size = 20
 
 
@@ -28,7 +28,7 @@ myfont = pygame.font.SysFont("Comic Sans MS", 20)
 label = myfont.render("Waiting Area", 1, (0,0,0))
 window.blit(label, (1430, 10))
 window.blit(label, (10, 10))
-
+step = 0.5
 
 while True:
     if (randrange(11) <= 5):
@@ -53,6 +53,13 @@ while True:
             if (grid[fila][columna] == 1):
                 if (columna + 1 < 42):
                     grid_copy[fila][columna + 1] = 1
+    
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN and step > 0:
+            if event.key == pygame.K_w:
+                step += 0.05
+            if event.key == pygame.K_s:
+                step -= 0.05
     grid = grid_copy
     pygame.display.update()
-    time.sleep(0.3)
+    time.sleep(step)
