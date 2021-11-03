@@ -138,3 +138,18 @@ class Modelo :
             i.avanzar(self)
         self.turno_actual +=1
         self.semaforo.avanzar();
+
+    def generar_matriz(self) :
+        grid = [[], [], [], [], [], []]
+        for y in range(0, self.alto):
+            for x in range(0, self.ancho) :
+                aux = c.Coordenada(x, y)
+                if aux in self.peatones :
+                    if self.peatones[aux].direccion == "d" :
+                        grid[y][x] = 1
+                    else:
+                        grid[y][x] = 1
+                elif self.hay_auto(aux) :
+                    grid[y][x] = 2
+                else :
+                    grid[y][x] = 0
