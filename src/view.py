@@ -4,8 +4,6 @@ from random import randrange
 
 pygame.init()
 
-
-
 height = 6
 width = 42
 window = pygame.display.set_mode((1000 ,180)) #Mi monitor es chico, cambio un pco la reso
@@ -18,11 +16,6 @@ grid = [[],[],[],[],[],[]]
 for i in range(height):
     for j in range(width):
         grid[i].append(0)
-
-
-
-
-
 
 rect = pygame.Rect(0, 0, 120, 180)
 pygame.draw.rect(window, (0,150,0), rect)

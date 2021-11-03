@@ -51,16 +51,22 @@ class Peaton :
     #En caso de que la posicion nueva se encuentre ocupada me quedo quieto.
     def mover_a (self, modelo, posicion_nueva) :
         if(posicion_nueva.x >= modelo.ancho or posicion_nueva.x < 0 or
-            posicion_nueva.y<0 or posicion_nueva.y >= modelo.alto):
+            posicion_nueva.y < 0 or posicion_nueva.y >= modelo.alto):
             raise ValueError("Se intento mover a una posicion invalida")
 
         aux = copy.deepcopy(self)
-        if posicion_nueva not in modelo.peatones_siguiente_turno:
-            aux.posicion = posicion_nueva
-            modelo.peatones_siguiente_turno[aux.posicion] = aux
-        else:  # La posicion ya estaba ocupada, me quedo quieto.
-            modelo.peatones_siguiente_turno[aux.posicion] = aux
 
+        if posicion_nueva in modelo.peatones_siguiente_turno:
+            modelo.peatones_siguiente_turno[aux.posicion] = aux  #me quedo quieto, la posicion ya estaba ocupada
+            return
+        if modelo.hay_auto(posicion_nueva):
+            modelo.peatones_siguiente_turno[aux.posicion] = aux  #Habia un auto, entonces me quedo quieto
+            modelo.cantidad_conflictos += 1
+            return
+
+        #si llego aca es porque me tengo que mover
+        aux.posicion = posicion_nueva
+        modelo.peatones_siguiente_turno[aux.posicion] = aux
 
     ## Logica de implementar su movimiento.
     def avanzar (self, modelo) :
@@ -74,6 +80,8 @@ class Peaton :
         aux = cor.Coordenada(self.posicion.x + self.vel_turno, self.posicion.y)
         if aux.x >= modelo.ancho:
             modelo.cantidad_cruces += 1
+            if modelo.semaforo.esta_verde()  :
+                modelo.cruces_verde +=1
             return  # llego a la meta, en el siguiente turno no esta en el mapa.
         else: #insertamos en el map secundario.
             self.mover_a(modelo, aux)
@@ -82,6 +90,8 @@ class Peaton :
         aux = cor.Coordenada(self.posicion.x - self.vel_turno, self.posicion.y)
         if aux.x < 0:
             modelo.cantidad_cruces += 1
+            if modelo.semaforo.esta_verde()  :
+                modelo.cruces_verde +=1
             return  # llego a la meta, en el siguiente turno no esta en el mapa.
         else: #insertamos en el map secundario.
             self.mover_a(modelo, aux)
