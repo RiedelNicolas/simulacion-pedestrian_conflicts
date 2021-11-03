@@ -8,7 +8,7 @@ import peaton as p
 import semaforo as s
 import auto as at
 class Modelo :
-    def __init__(self, _alto=5,_ancho=21, _tiempo_verde = 40, _lambda_peatones = 0.2, _lambda_autos = 0.07):
+    def __init__(self, _alto=5,_ancho=21, _tiempo_verde = 40, _lambda_peatones = 0.7, _lambda_autos = 0.07):
         self.alto = _alto*2 #Paso de metros a celdas.
         self.ancho = _ancho*2 #Paseo de metros a celdas.
         self.peatones = {}
